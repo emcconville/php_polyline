@@ -83,11 +83,8 @@ PHP_FUNCTION(polyline_encode)
     HashTable *zpoint_hash, *point_hash;
     HashPosition pointer;
     smart_str encoded = {0};
-    int precision = INI_INT("polyline.precision");
-    if( precision < 1 ) precision = 1;
-    if( precision > 6 ) precision = 6;
-    int tuple = INI_INT("polyline.tuple");
-    if( tuple < 1 ) tuple = 1;
+    int precision = _polyline_get_ini_precision(); 
+    int tuple = _polyline_get_ini_tuple();
     int tuple_index = 0;
     int * previous = ecalloc(sizeof(int), tuple);
 	int chunk;
@@ -134,11 +131,8 @@ PHP_FUNCTION(polyline_decode)
     char *encoded;
     int len,index = 0;
     zval *zpoint = NULL;
-    int precision = INI_INT("polyline.precision");
-    if( precision < 1 ) precision = 1;
-    if( precision > 6 ) precision = 6;
-    int tuple = INI_INT("polyline.tuple");
-    if( tuple < 1 ) tuple = 1;
+    int precision = _polyline_get_ini_precision(); 
+    int tuple = _polyline_get_ini_tuple(); 
     int tuple_index = 0;
     int * previous = ecalloc(sizeof(int), tuple);
 	int number;
@@ -195,4 +189,24 @@ long _polyline_decode_chunk( char * buffer, int * buffer_length )
         shift  += 0x05;
     } while ( chunk >= 0x20 );
     return ( result & 1 ) ? ~( result >> 1 ) : ( result >> 1 );
+}
+
+int _polyline_get_ini_tuple()
+{
+    int tuple = INI_INT("polyline.tuple");
+    if( tuple < 1 ) {
+       php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid polyline.tuple setting.");
+       tuple = 2;
+    }
+    return tuple;
+}
+
+int _polyline_get_ini_precision()
+{
+    int precision = INI_INT("polyline.precision");
+    if( precision < 0 || precision > 6) {
+       php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid polyline.precision setting.");
+       precision = 5;
+    }
+    return precision;
 }

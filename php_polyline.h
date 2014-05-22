@@ -14,5 +14,8 @@ PHP_FUNCTION(polyline_decode);
 void _polyline_encode_chunk( long delta, smart_str * buffer );
 long _polyline_decode_chunk( char * buffer, int * buffer_length );
 
+int _polyline_get_ini_tuple(void);
+int _polyline_get_ini_precision(void);
+
 #endif
 
