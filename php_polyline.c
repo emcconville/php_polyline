@@ -100,10 +100,6 @@ PHP_FUNCTION(polyline_encode)
         zend_hash_get_current_data_ex(zpoint_hash,(void **)&data, &pointer) == SUCCESS;
         zend_hash_move_forward_ex(zpoint_hash,&pointer)
     ){
-        // **data is the corrent zval
-        if(Z_TYPE_PP(data) == IS_STRING) {
-            smart_str_appendl(&encoded, Z_STRVAL_PP(data), Z_STRLEN_PP(data));
-        }
         if(Z_TYPE_PP(data) == IS_ARRAY) {
             point_hash = Z_ARRVAL_PP(data);
             // Iterate over nexted point
@@ -121,10 +117,10 @@ PHP_FUNCTION(polyline_encode)
                }
                tuple_index = 0;
             } else {
-                php_printf("No tuple\n");
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "Size of item does not match \"polyline.tuple\" configuration.");
             }
         } else {
-            php_printf("Not array");
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Element item not array.");
         }
     }
     efree(previous);
