@@ -159,9 +159,9 @@ PHP_FUNCTION(polyline_decode)
             tuple_index = 0;
         }
     }
-    efree(zpoint); 
+    if(zpoint)
+      efree(zpoint);
     efree(previous);
-    efree(encoded);
 }
 
 
