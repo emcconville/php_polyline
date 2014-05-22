@@ -89,9 +89,8 @@ PHP_FUNCTION(polyline_encode)
     int tuple = INI_INT("polyline.tuple");
     if( tuple < 1 ) tuple = 1;
     int tuple_index = 0;
-    int * pLatLng = ecalloc(sizeof(int), tuple);
-    int * cLatLng = ecalloc(sizeof(int), tuple);
-    int * delta   = ecalloc(sizeof(int), tuple);
+    int * previous = ecalloc(sizeof(int), tuple);
+	int chunk;
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &zpoint) == FAILURE) {
        return;
     }
@@ -115,10 +114,9 @@ PHP_FUNCTION(polyline_encode)
                 {
                 
                    zend_hash_index_find(point_hash,tuple_index,(void **)&point);
-                   cLatLng[tuple_index] = (int)(Z_DVAL_PP(point) * pow(10,precision));
-                   delta[tuple_index] = cLatLng[tuple_index] - pLatLng[tuple_index];
-                   pLatLng[tuple_index] = cLatLng[tuple_index];
-                   _polyline_encode_chunk(delta[tuple_index],&encoded);
+                   chunk = (int)(Z_DVAL_PP(point) * pow(10,precision));
+                   _polyline_encode_chunk(chunk - previous[tuple_index],&encoded);
+                   previous[tuple_index] = chunk;
                    tuple_index++; 
                }
                tuple_index = 0;
@@ -129,9 +127,7 @@ PHP_FUNCTION(polyline_encode)
             php_printf("Not array");
         }
     }
-    efree(pLatLng);
-    efree(cLatLng);
-    efree(delta);
+    efree(previous);
     smart_str_0(&encoded);
     ZVAL_STRINGL(return_value,encoded.c,encoded.len,1);
     smart_str_free(&encoded);
@@ -148,9 +144,8 @@ PHP_FUNCTION(polyline_decode)
     int tuple = INI_INT("polyline.tuple");
     if( tuple < 1 ) tuple = 1;
     int tuple_index = 0;
-    int * pLatLng = ecalloc(sizeof(int), tuple);
-    int * cLatLng = ecalloc(sizeof(int), tuple);
-    int * delta   = ecalloc(sizeof(int), tuple);
+    int * previous = ecalloc(sizeof(int), tuple);
+	int number;
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &encoded, &len) == FAILURE) {
         return;
     }
@@ -158,14 +153,13 @@ PHP_FUNCTION(polyline_decode)
     array_init(return_value);
     while( index < len)
     {
-        delta[tuple_index] = _polyline_decode_chunk( encoded, &index );
-        cLatLng[tuple_index] = pLatLng[tuple_index] + delta[tuple_index];
-        pLatLng[tuple_index] = cLatLng[tuple_index];
+        number = previous[tuple_index] + _polyline_decode_chunk( encoded, &index );
+        previous[tuple_index] = number;
         if(!zpoint) {
             MAKE_STD_ZVAL(zpoint);
             array_init_size(zpoint,tuple);
         }
-        add_next_index_double(zpoint,((double)cLatLng[tuple_index] * 1 / pow(10,precision) ));
+        add_next_index_double(zpoint,((double)number * 1 / pow(10,precision) ));
         tuple_index++;
         // Complte tuple, allocated array & rest
         if(tuple_index == tuple)
@@ -176,9 +170,7 @@ PHP_FUNCTION(polyline_decode)
         }
     }
     efree(zpoint); 
-    efree(pLatLng);
-    efree(cLatLng);
-    efree(delta);
+    efree(previous);
     efree(encoded);
 }
 
