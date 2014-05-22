@@ -24,6 +24,7 @@ missing
 mkinstalldirs
 modules/
 php_polyline.lo
+php_test_results_*.txt
 polyline.la
 run-tests.php
 tests/*.diff
