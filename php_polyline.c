@@ -73,12 +73,11 @@ PHP_MINFO_FUNCTION(polyline)
 {
     php_info_print_table_start();
     php_info_print_table_header(2,"polyline support","enabled");
-    php_info_print_table_row(2,"author","E. McConville <emcconville@emcconville.com>");
-    php_info_print_table_row(2,"version",PHP_POLYLINE_VERSION);
-    php_info_print_table_row(2,"polyline.tuple",INI_ORIG_STR("polyline.tuple"));
-    php_info_print_table_row(2,"polyline.precision",INI_STR("polyline.precision"));
-//    DISPLAY_INI_ENTRIES();
+    php_info_print_table_row(2,"polyline version",PHP_POLYLINE_VERSION);
+    php_info_print_table_row(2,"polyline revision",PHP_POLYLINE_REVISION);
     php_info_print_table_end();
+    
+    DISPLAY_INI_ENTRIES();
 }
 
 PHP_FUNCTION(polyline_encode)
@@ -237,7 +236,7 @@ static inline int _polyline_validate_encoded_string( char * ptr, int len, int tu
     return valid % tuple;
 }
 
-int _polyline_get_ini_tuple()
+static inline int _polyline_get_ini_tuple()
 {
     int tuple = INI_INT("polyline.tuple");
     if( tuple < 1 ) {
@@ -247,7 +246,7 @@ int _polyline_get_ini_tuple()
     return tuple;
 }
 
-int _polyline_get_ini_precision()
+static inline int _polyline_get_ini_precision()
 {
     int precision = INI_INT("polyline.precision");
     if( precision < 0 || precision > 6) {
