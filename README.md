@@ -21,6 +21,26 @@
     MYPHPINI=`php-config --configure-options | sed -n 's/.*with-config-file-path=\([^ \]*\)\ .*/\1\/php.ini/p'`
     sudo echo "extension=polyline.so" >> $MYPHPINI
 
+### Functions ###
+
+#### polyline_encode ####
+
+    string polyline_encode ( array $points )
+
+Returns an encoded string, or FALSE on failure.
+
+    array  polyline_decode ( string $encoded )
+
+#### polyline_decode ####
+
+Returns array of points decoded from a given string, or FALSE on failure.
+
+#### polyline_validate_encoded_string ####
+
+    bool   polyline_validate_encoded_string( string $encded )
+
+Evaluates if a given string is a valid encoded string.
+
 ### Usage ###
 
 Encode polyline
