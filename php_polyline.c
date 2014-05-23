@@ -20,7 +20,10 @@ PHP_INI_END()
 ZEND_BEGIN_ARG_INFO(arginfo_polyline_encode,0)
     ZEND_ARG_INFO(0,array)
 ZEND_END_ARG_INFO();
-ZEND_BEGIN_ARG_INFO(argingo_polyline_decode,0)
+ZEND_BEGIN_ARG_INFO(arginfo_polyline_decode,0)
+    ZEND_ARG_INFO(0,string)
+ZEND_END_ARG_INFO();
+ZEND_BEGIN_ARG_INFO(arginfo_polyline_validate_encoded_string,0)
     ZEND_ARG_INFO(0,string)
 ZEND_END_ARG_INFO();
 
@@ -28,7 +31,8 @@ ZEND_END_ARG_INFO();
  */
 zend_function_entry polyline_functions[] = {
     PHP_FE(polyline_encode,arginfo_polyline_encode)
-    PHP_FE(polyline_decode,argingo_polyline_decode)
+    PHP_FE(polyline_decode,arginfo_polyline_decode)
+    PHP_FE(polyline_validate_encoded_string,arginfo_polyline_validate_encoded_string)
     {NULL,NULL,NULL}
 };
 /* }}} */
@@ -143,9 +147,15 @@ PHP_FUNCTION(polyline_decode)
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &encoded, &len) == FAILURE) {
         return;
     }
+    if ( len > 0 ) {
+        if(_polyline_validate_encoded_string(encoded,len,tuple) > 0) {
+            php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Invalid encoded string.");
+            RETURN_FALSE;
+        }
+    }
 //    ALLOC_INIT_ZVAL(zpoints);
     array_init(return_value);
-    while( index < len)
+    while( index < len )
     {
         number = previous[tuple_index] + _polyline_decode_chunk( encoded, &index );
         previous[tuple_index] = number;
@@ -170,6 +180,21 @@ PHP_FUNCTION(polyline_decode)
     efree(previous);
 }
 
+PHP_FUNCTION(polyline_validate_encoded_string)
+{
+    char * str;
+    int len;
+    int tuple = _polyline_get_ini_tuple();
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &len) == FAILURE) {
+        return;
+    }
+    
+    if ( len > 0 && _polyline_validate_encoded_string(str,len,tuple) == 0) {
+        RETURN_TRUE;
+    } else {
+        RETURN_FALSE;
+    }
+}
 
 void _polyline_encode_chunk( long delta, smart_str * buffer )
 {
@@ -195,6 +220,21 @@ long _polyline_decode_chunk( char * buffer, int * buffer_length )
         shift  += 0x05;
     } while ( chunk >= 0x20 );
     return ( result & 1 ) ? ~( result >> 1 ) : ( result >> 1 );
+}
+
+int _polyline_validate_encoded_string( char * ptr, int len, int tuple )
+{
+    int byte = ptr[--len] -  0x3f;
+    int valid = byte < 0x20 ? 1 : 0;
+    if( valid == 0 ) { return 1; }
+    while (len > 0)
+    {
+        byte = ptr[--len] -  0x3f;
+        if( byte < 0 ) { return 1; }
+        if( byte < 0x20 )
+            ++valid;
+    };
+    return valid % tuple;
 }
 
 int _polyline_get_ini_tuple()

@@ -10,9 +10,11 @@ PHP_MSHUTDOWN_FUNCTION(polyline);
 PHP_MINFO_FUNCTION(polyline);
 PHP_FUNCTION(polyline_encode);
 PHP_FUNCTION(polyline_decode);
+PHP_FUNCTION(polyline_validate_encoded_string);
 
 void _polyline_encode_chunk( long delta, smart_str * buffer );
 long _polyline_decode_chunk( char * buffer, int * buffer_length );
+int  _polyline_validate_encoded_string( char * ptr, int len, int tuple );
 
 int _polyline_get_ini_tuple(void);
 int _polyline_get_ini_precision(void);
