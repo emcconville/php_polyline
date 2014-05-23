@@ -196,7 +196,7 @@ PHP_FUNCTION(polyline_validate_encoded_string)
     }
 }
 
-void _polyline_encode_chunk( long delta, smart_str * buffer )
+static inline void _polyline_encode_chunk( long delta, smart_str * buffer )
 {
     long number = (delta < 0) ? ~(delta << 1) : (delta << 1);
     while ( number >= 0x20 )
@@ -207,7 +207,7 @@ void _polyline_encode_chunk( long delta, smart_str * buffer )
     smart_str_appendc(buffer,(char)number + 0x3f);
 }
 
-long _polyline_decode_chunk( char * buffer, int * buffer_length )
+static inline long _polyline_decode_chunk( char * buffer, int * buffer_length )
 {
     long chunk, shift, result;
     char c;
@@ -222,7 +222,7 @@ long _polyline_decode_chunk( char * buffer, int * buffer_length )
     return ( result & 1 ) ? ~( result >> 1 ) : ( result >> 1 );
 }
 
-int _polyline_validate_encoded_string( char * ptr, int len, int tuple )
+static inline int _polyline_validate_encoded_string( char * ptr, int len, int tuple )
 {
     int byte = ptr[--len] -  0x3f;
     int valid = byte < 0x20 ? 1 : 0;

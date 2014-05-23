@@ -1,5 +1,5 @@
 # Polyline (PECL) #
-## Embeded Polyline Encoder Module ##
+## Embedded Polyline Encoder Module ##
 
 ### Installation ###
 
@@ -29,9 +29,9 @@
 
 Returns an encoded string, or FALSE on failure.
 
-    array  polyline_decode ( string $encoded )
-
 #### polyline_decode ####
+
+    array  polyline_decode ( string $encoded )
 
 Returns array of points decoded from a given string, or FALSE on failure.
 
