@@ -115,9 +115,13 @@ PHP_FUNCTION(polyline_encode)
                tuple_index = 0;
             } else {
                 php_error_docref(NULL TSRMLS_CC, E_WARNING, "Size of item does not match \"polyline.tuple\" configuration.");
+				efree(previous);
+				RETURN_FALSE;
             }
         } else {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "Element item not array.");
+			efree(previous);
+			RETURN_FALSE;
         }
     }
     efree(previous);
@@ -159,8 +163,10 @@ PHP_FUNCTION(polyline_decode)
             tuple_index = 0;
         }
     }
-    if(zpoint)
+    if(zpoint) {
+	  php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Ending tuple incomplete. Finial point omitted.");
       efree(zpoint);
+    }
     efree(previous);
 }
 
