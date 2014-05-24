@@ -3,6 +3,7 @@
 
 ### Installation ###
 
+    #!/bin/sh
     # Get source
     git clone http://git.emcconville.com/php_polyline.git
     # Change directory
@@ -15,11 +16,11 @@
     make
     # Verify
     make test
-    # Copy shared object to extension directory (or use `sudo make install`)
-    sudo cp modules/polyline.so `php-config --extension-dir`
-    # Enable extension in php.ini
-    MYPHPINI=`php-config --configure-options | sed -n 's/.*with-config-file-path=\([^ \]*\)\ .*/\1\/php.ini/p'`
-    sudo echo "extension=polyline.so" >> $MYPHPINI
+    # Copy shared object to extension directory.
+    # Use `php-config --extension-dir`, or `sudo make install`
+    sudo cp modules/polyline.so /path/to/ext
+    # Enable extension in php.ini by adding the following line in `php.ini'
+    # extension=polyline.so
 
 ### Functions ###
 
