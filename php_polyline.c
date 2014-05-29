@@ -88,6 +88,10 @@ PHP_MINFO_FUNCTION(polyline)
     DISPLAY_INI_ENTRIES();
 }
 
+
+/* {{{ proto string polyline_encode(array points)
+   Returns a string representing a polyline
+ */
 PHP_FUNCTION(polyline_encode)
 {
     zval *zpoint, **data, **point;
@@ -140,7 +144,12 @@ PHP_FUNCTION(polyline_encode)
     ZVAL_STRINGL(return_value,encoded.c,encoded.len,1);
     smart_str_free(&encoded);
 }
+/*  }}} */
 
+
+/* {{{ proto polyline_decode(string encoded)
+   Returns array of points extracted from a given string.
+ */
 PHP_FUNCTION(polyline_decode)
 {
     char *encoded;
@@ -160,7 +169,6 @@ PHP_FUNCTION(polyline_decode)
             RETURN_FALSE;
         }
     }
-//    ALLOC_INIT_ZVAL(zpoints);
     array_init(return_value);
     while( index < len )
     {
@@ -180,13 +188,18 @@ PHP_FUNCTION(polyline_decode)
             tuple_index = 0;
         }
     }
-    if(zpoint) {
+    if(zpoint) { // Should never be TRUE, as we validate above.
 	  php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Ending tuple incomplete. Finial point omitted.");
       efree(zpoint);
     }
     efree(previous);
 }
+/* }}} */
 
+
+/* {{{ proto bool polyline_validate_encoded_string(string encoded)
+   Return true if given string is a valid polyine (i.e. has complete set of tuples, and ends with a terminating character)
+ */
 PHP_FUNCTION(polyline_validate_encoded_string)
 {
     char * str;
@@ -202,6 +215,8 @@ PHP_FUNCTION(polyline_validate_encoded_string)
         RETURN_FALSE;
     }
 }
+/* }}} */
+
 
 static inline void _polyline_encode_chunk( long delta, smart_str * buffer )
 {
