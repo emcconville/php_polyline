@@ -9,6 +9,14 @@
 #include "ext/standard/php_math.h"
 #include "php_polyline.h"
 
+
+static inline void _polyline_encode_chunk( long delta, smart_str * buffer );
+static inline long _polyline_decode_chunk( char * buffer, int * buffer_length );
+static inline int  _polyline_validate_encoded_string( char * ptr, int len, int tuple );
+
+static inline int  _polyline_get_ini_tuple(void);
+static inline int  _polyline_get_ini_precision(void);
+
 /* {{{ PHP_INI
  */
 PHP_INI_BEGIN()
