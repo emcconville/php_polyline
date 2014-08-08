@@ -122,7 +122,7 @@ PHP_FUNCTION(polyline_encode)
                 {
                 
                    zend_hash_index_find(point_hash,tuple_index,(void **)&point);
-                   chunk = (int)(Z_DVAL_PP(point) * pow(10,precision));
+                   chunk = (int)round(Z_DVAL_PP(point) * pow(10,precision));
                    _polyline_encode_chunk(chunk - previous[tuple_index],&encoded);
                    previous[tuple_index] = chunk;
                    tuple_index++; 
